@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+<style>
+  html, body { margin: 0; padding: 0; width: 100%; height: 100%; background: #0a0a12; overflow: hidden; }
+  #stage { position: fixed; inset: 0; width: 100vw; height: 100vh; }
+  #notch {
+    position: absolute; top: 18px; left: 50%; transform: translateX(-50%);
+    width: 90px; height: 20px; background: #1c1c1c; border-radius: 12px;
+    animation: pulseTop 2.4s ease-in-out infinite;
+  }
+  @keyframes pulseTop {
+    0%, 100% { box-shadow: 0 0 4px 0px rgba(56,138,221,0.3); }
+    50% { box-shadow: 0 0 22px 6px rgba(83,74,183,0.9); }
+  }
+  #glowTop {
+    position: absolute; top: 0; left: 0; width: 100%; height: 90px;
+    background: linear-gradient(180deg, rgba(56,138,221,0.35), transparent);
+    animation: pulseGlowTop 2.4s ease-in-out infinite;
+  }
+  #glowBottom {
+    position: absolute; bottom: 0; left: 0; width: 100%; height: 90px;
+    background: linear-gradient(0deg, rgba(83,74,183,0.35), transparent);
+    animation: pulseGlowBottom 2.4s ease-in-out infinite;
+    animation-delay: 0.6s;
+  }
+  @keyframes pulseGlowTop { 0%,100%{opacity:0.35;} 50%{opacity:1;} }
+  @keyframes pulseGlowBottom { 0%,100%{opacity:0.3;} 50%{opacity:0.9;} }
+  #center {
+    position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+    display: flex; flex-direction: column; align-items: center; gap: 18px;
+  }
+  #pct { font-family: sans-serif; font-size: 18px; color: #b4b2a9; }
+  .particle { position: absolute; border-radius: 50%; opacity: 0; animation: floatUp linear infinite; }
+  @keyframes floatUp {
+    0% { transform: translateY(0); opacity: 0; }
+    10% { opacity: 0.9; }
+    90% { opacity: 0.5; }
+    100% { transform: translateY(-90vh); opacity: 0; }
+  }
+  #battFillRect { transition: y 0.6s ease, height 0.6s ease; }
+</style>
+</head>
+<body>
+<div id="stage">
+  <div id="glowTop"></div>
+  <div id="glowBottom"></div>
+  <div id="notch"></div>
+  <div id="particles"></div>
+  <div id="center">
+    <svg width="80" height="140" viewBox="0 0 44 76">
+      <defs>
+        <linearGradient id="battGrad" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#378ADD"/>
+          <stop offset="100%" stop-color="#7F77DD"/>
+        </linearGradient>
+      </defs>
+      <rect x="14" y="0" width="16" height="8" rx="3" fill="#3a3a3a"/>
+      <rect x="2" y="8" width="40" height="68" rx="8" fill="none" stroke="#3a3a3a" stroke-width="3"/>
+      <clipPath id="battClip"><rect x="5" y="11" width="34" height="62" rx="5"/></clipPath>
+      <rect id="battFillRect" x="5" y="73" width="34" height="0" clip-path="url(#battClip)" fill="url(#battGrad)"></rect>
+      <path d="M24 20 L14 44 L21 44 L18 58 L30 34 L22 34 Z" fill="#fff" opacity="0.9"/>
+    </svg>
+    <div id="pct">--%</div>
+  </div>
+</div>
+<script>
+  var fillRect = document.getElementById('battFillRect');
+  var pctLabel = document.getElementById('pct');
+  var BOTTOM_Y = 73;
+  var MAX_H = 61;
+  window.setBatteryLevel = function (pct) {
+    pct = Math.max(0, Math.min(100, pct));
+    var h = MAX_H * (pct / 100);
+    var y = BOTTOM_Y - h;
+    fillRect.setAttribute('y', y);
+    fillRect.setAttribute('height', h);
+    pctLabel.textContent = pct + '%';
+  };
+  window.setBatteryLevel(0);
+  var colors = ['#378ADD', '#534AB7', '#7F77DD', '#85B7EB'];
+  var container = document.getElementById('particles');
+  for (var i = 0; i < 26; i++) {
+    var p = document.createElement('div');
+    p.className = 'particle';
+    var size = 2 + Math.random() * 3;
+    p.style.width = size + 'px';
+    p.style.height = size + 'px';
+    p.style.left = (5 + Math.random() * 90) + '%';
+    p.style.bottom = (Math.random() * 30) + '%';
+    var c = colors[Math.floor(Math.random() * colors.length)];
+    p.style.background = c;
+    p.style.boxShadow = '0 0 6px 1px ' + c;
+    p.style.animationDuration = (3 + Math.random() * 3) + 's';
+    p.style.animationDelay = (Math.random() * 5) + 's';
+    container.appendChild(p);
+  }
+</script>
+</body>
+</html>
